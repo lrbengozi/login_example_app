@@ -5,7 +5,7 @@ import {View, Text} from 'react-native';
 const SignIn: React.FC = () => {
   return (
     <View>
-      <Text>Tela de Login</Text>
+      <Text>Login Page</Text>
     </View>
   );
 };
