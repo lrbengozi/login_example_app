@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   View,
   TextInput,
@@ -7,6 +6,8 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
+
+import {useAuth} from '../../contexts/auth.context';
 
 const styles = StyleSheet.create({
   boxCenter: {
@@ -39,10 +40,13 @@ const styles = StyleSheet.create({
 });
 
 const SignIn: React.FC = () => {
+  const {signIn} = useAuth();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
-  const doLogin = () => {};
+  const doLogin = () => {
+    signIn(email, password);
+  };
 
   return (
     <View style={styles.boxCenter}>
@@ -58,6 +62,7 @@ const SignIn: React.FC = () => {
           style={styles.input}
           value={password}
           placeholder="Password"
+          secureTextEntry={true}
           onChangeText={setPassword}
         />
         <TouchableOpacity style={styles.loginButton} onPress={doLogin}>

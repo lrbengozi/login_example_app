@@ -1,4 +1,6 @@
-import React, {createContext, useContext, useState} from 'react';
+import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as auth from '../services/auth';
 
 type UserData = {
   name: string;
@@ -9,22 +11,49 @@ type AuthContextData = {
   signed: boolean;
   user: UserData | null;
   loading: boolean;
+  signIn(email: string, password: string): void;
 };
 
-const AuthContext = createContext({} as AuthContextData);
+const AuthContext = React.createContext({} as AuthContextData);
 
 export const AuthProvider: React.FC = ({children}) => {
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = React.useState<UserData | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadStorageData() {
+      const storageUser = await AsyncStorage.getItem('@loginexample:user');
+      const storageToken = await AsyncStorage.getItem('@loginexample:token');
+
+      if (storageUser && storageToken) {
+        setUser(JSON.parse(storageUser));
+      }
+      setLoading(false);
+    }
+
+    loadStorageData();
+  });
+
+  async function signIn(email: string, password: string) {
+    const response = await auth.signIn(email, password);
+    setUser(response.user);
+
+    await AsyncStorage.setItem(
+      '@loginexample:user',
+      JSON.stringify(response.user),
+    );
+    await AsyncStorage.setItem('@loginexample:token', response.token);
+  }
+
   return (
-    <AuthContext.Provider value={{signed: !!user, user, loading}}>
+    <AuthContext.Provider value={{signed: !!user, user, loading, signIn}}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
 
   return context;
 }
