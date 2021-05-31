@@ -12,6 +12,7 @@ type AuthContextData = {
   user: UserData | null;
   loading: boolean;
   signIn(email: string, password: string): void;
+  signOut(): void;
 };
 
 const AuthContext = React.createContext({} as AuthContextData);
@@ -45,8 +46,14 @@ export const AuthProvider: React.FC = ({children}) => {
     await AsyncStorage.setItem('@loginexample:token', response.token);
   }
 
+  async function signOut() {
+    await AsyncStorage.clear();
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{signed: !!user, user, loading, signIn}}>
+    <AuthContext.Provider
+      value={{signed: !!user, user, loading, signIn, signOut}}>
       {children}
     </AuthContext.Provider>
   );
